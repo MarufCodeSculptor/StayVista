@@ -49,7 +49,6 @@ async function run() {
   try {
     const roomsCollections = client.db("stayVista").collection("rooms");
 
-    
     // auth related api
     app.post("/jwt", async (req, res) => {
       const user = req.body;
@@ -80,26 +79,29 @@ async function run() {
       }
     });
 
-
-  //  getting all rooms data: 
+    //  getting all rooms data:
     app.get("/rooms", async (req, res) => {
-      const result = await roomsCollections.find({}).toArray();
+      const category = req.query.category;
+      let query = {};
+
+      if (category && category !== "null" ) query = { category };
+
+      const result = await roomsCollections.find(query).toArray();
+
+      console.log(category, result, query);
+
       res.send(result);
     });
 
-  // getting single rooms data: 
+    // getting single rooms data:
 
-  app.get('/room/:id', async(req,res)=>{
-    console.log('backend hitted');
-    const id = req.params.id;
-    const query= {_id: new ObjectId(id)};
-    const result = await roomsCollections.findOne(query);
-    res.send(result)
-  })
-
-
-
-
+    app.get("/room/:id", async (req, res) => {
+      console.log("backend hitted");
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await roomsCollections.findOne(query);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
