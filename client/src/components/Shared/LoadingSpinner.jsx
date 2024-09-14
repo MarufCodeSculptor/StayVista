@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import { ScaleLoader } from 'react-spinners'
 
+
 const LoadingSpinner = ({ smallHeight }) => {
   return (
     <div
