@@ -84,11 +84,9 @@ async function run() {
       const category = req.query.category;
       let query = {};
 
-      if (category && category !== "null" ) query = { category };
+      if (category && category !== "null") query = { category };
 
       const result = await roomsCollections.find(query).toArray();
-
-      console.log(category, result, query);
 
       res.send(result);
     });
