@@ -5,7 +5,8 @@ import LoadingSpinner from "../Shared/LoadingSpinner";
 import useRoomsData from "../../hooks/useRoomsData";
 
 const Rooms = () => {
-  const [loading, error, rooms] = useRoomsData();
+ 
+  const [loading, error, rooms] = useRoomsData(); 
 
   if (loading) return <LoadingSpinner />;
 
