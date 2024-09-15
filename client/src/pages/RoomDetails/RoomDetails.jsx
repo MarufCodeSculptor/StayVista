@@ -2,7 +2,7 @@ import Container from "../../components/Shared/Container";
 import { Helmet } from "react-helmet-async";
 import RoomReservation from "../../components/RoomDetails/RoomReservation";
 import Heading from "../../components/Shared/Heading";
-import { useLoaderData, useParams } from "react-router-dom";
+import { useLoaderData} from "react-router-dom";
 
 const RoomDetails = () => {
   const room = useLoaderData();
@@ -78,6 +78,7 @@ const RoomDetails = () => {
             </div>
 
             <div className="md:col-span-3 order-first md:order-last mb-10">
+             
               {/* RoomReservation */}
               <RoomReservation room={room} />
             </div>
