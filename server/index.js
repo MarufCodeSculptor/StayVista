@@ -107,6 +107,23 @@ async function run() {
       const result = await roomsCollections.insertOne(roomData);
       res.send(result);
     });
+    // getting my-listing data
+    app.get("/my-listings/:email", async (req, res) => {
+      // email from params.email
+      const email = req.params.email;
+      const query = { "host.email": email };
+      const result = await roomsCollections.find(query).toArray();
+      res.send(result);
+    });
+    // removing rooms by user  
+    app.delete("/room/:id",async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await roomsCollections.deleteOne(query);
+      res.send(result);
+     
+
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

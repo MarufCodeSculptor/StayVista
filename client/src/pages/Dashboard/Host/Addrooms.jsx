@@ -7,6 +7,7 @@ import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 import { Helmet } from "react-helmet-async";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Addrooms = () => {
   const [dataProccecing, setDataProccesing] = useState(false);
@@ -17,7 +18,7 @@ const Addrooms = () => {
   });
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-
+  const navigate = useNavigate();
   //   date range handler =>
   const handleDates = (item) => {
     setState(item.selection);
@@ -29,10 +30,10 @@ const Addrooms = () => {
       return data;
     },
 
-    onSuccess: async (data)=>{
-      console.log(data,'success data posted ');
-      toast.success('successfully posted data',)
-    }
+    onSuccess: async (data) => {
+      console.log(data,"rooms posting response");
+      toast.success("successfully posted data");
+    },
   });
   // form handle function =>
   const handleSubmit = async (e) => {
@@ -74,8 +75,7 @@ const Addrooms = () => {
         const { insertedId } = await mutateAsync(roomsData);
 
         if (insertedId) {
-          toast.success("data posted success");
-
+          navigate("/dashboard/my-listings");
           setDataProccesing(false);
         }
       }

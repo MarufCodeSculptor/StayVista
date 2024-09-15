@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { categories } from "../../components/Categories/CategoriesData";
 import { DateRange } from "react-date-range";
+import PropTypes from "prop-types";
 
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
@@ -100,13 +101,12 @@ const AddRoomForm = ({ handleDates, state, handleSubmit }) => {
                       hidden
                     />
                     <div className="bg-rose-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-rose-500">
-                      {imageTitle &&
+                      {(imageTitle &&
                         imageTitle.length > 20 &&
                         imageTitle.split(".")[0].slice(0, 20) +
                           "." +
-                          imageTitle.split(".")[1] || imageTitle
-                          
-                          }
+                          imageTitle.split(".")[1]) ||
+                        imageTitle}
                     </div>
                   </label>
                 </div>
@@ -196,6 +196,12 @@ const AddRoomForm = ({ handleDates, state, handleSubmit }) => {
       </form>
     </div>
   );
+};
+
+AddRoomForm.propTypes = {
+  handleDates: PropTypes.func.isRequired,
+  state: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
 };
 
 export default AddRoomForm;
