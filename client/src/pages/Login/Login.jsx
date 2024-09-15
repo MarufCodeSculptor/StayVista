@@ -2,45 +2,52 @@ import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../hooks/useAuth";
 import toast from "react-hot-toast";
-import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 
-
+import useGoogleLogin from "../../hooks/useGoogleLogin";
+import { ImSpinner9 } from "react-icons/im";
+import { useState } from "react";
 
 const Login = () => {
-  const { signIn, setLoading, signInWithGoogle, resetPassword, loading } =
-    useAuth();
-
+  const { signIn, setLoading, resetPassword, loading } = useAuth();
   const navigate = useNavigate();
+  const [loginTrigered, setLoginTrigered] = useState(false);
+  const [email, setEmail] = useState("");
 
+  const handleGoogleLogin = useGoogleLogin();
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setLoginTrigered(true);
     const form = e.target;
     const email = form.email.value;
+    setEmail(email);
     const password = form.password.value;
 
     try {
       const { user } = await signIn(email, password);
       if (user) {
         toast.success("login success");
+        setLoginTrigered(false);
         console.log(user);
         navigate("/");
       }
     } catch (err) {
       console.log(err?.message);
       toast.error(err?.message);
-    }
-  };
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    const { user } = await signInWithGoogle();
-    if (user.accessToken) {
-      navigate("/");
-      toast.success("Sign Up Successfull");
+      setLoading(false);
     }
   };
 
-  if (loading) return <LoadingSpinner smallHeight={false}/>;
+  const handleReset = async () => {
+    try {
+      await resetPassword(email);
+      toast.success("request accepted please check your email");
+      setLoading(false)
+    } catch (err) {
+      console.log(err?.message);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
@@ -90,18 +97,33 @@ const Login = () => {
           </div>
 
           <div>
-            <button
-              type="submit"
-              className="bg-rose-500 w-full rounded-md py-3 text-white"
-            >
-              Continue
-            </button>
+            {(loading && loginTrigered &&  (
+              <button
+                disabled
+                type="submit"
+                className="bg-rose-500 w-full rounded-md py-3 text-white flex justify-center items-center"
+              >
+                <ImSpinner9 className="animate-spin" />
+              </button>
+            )) || (
+              <button
+                type="submit"
+                className="bg-rose-500 w-full rounded-md py-3 text-white"
+              >
+                Continue
+              </button>
+            )}
           </div>
         </form>
         <div className="space-y-1">
-          <button className="text-xs hover:underline hover:text-rose-500 text-gray-400">
-            Forgot password?
-          </button>
+          {email && (
+            <button
+              onClick={handleReset}
+              className="text-xs hover:underline hover:text-rose-500 text-gray-400"
+            >
+              Forgot password?
+            </button>
+          )}
         </div>
         <div className="flex items-center pt-4 space-x-1">
           <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
@@ -110,14 +132,16 @@ const Login = () => {
           </p>
           <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
         </div>
-        <div
+        {/* google sign in  */}
+        <button
+          disabled={loading}
           onClick={handleGoogleLogin}
           className="flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer"
         >
           <FcGoogle size={32} />
-
           <p>Continue with Google</p>
-        </div>
+        </button>
+
         <p className="px-6 text-sm text-center text-gray-400">
           Don&apos;t have an account yet?{" "}
           <Link

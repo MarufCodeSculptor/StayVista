@@ -1,28 +1,35 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../hooks/useAuth";
-import { TbFidgetSpinner } from "react-icons/tb";
+
+import { ImSpinner9 } from "react-icons/im";
 
 import axios from "axios";
 const imageBBKey = import.meta.env.VITE_imagebb_key;
 const imageHostAPI = `https://api.imgbb.com/1/upload?key=${imageBBKey}`;
 import toast from "react-hot-toast";
-import LoadingSpinner from "../../components/Shared/LoadingSpinner";
+
+import useGoogleLogin from "../../hooks/useGoogleLogin";
+import { useState } from "react";
 
 const SignUp = () => {
   const {
     createUser,
-    signInWithGoogle,
+
     updateUserProfile,
     loading,
     setLoading,
   } = useAuth();
+
+  const handleGoogleLogin = useGoogleLogin();
+  const [loginTrigered, setLoginTrigered] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setLoginTrigered(true);
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
@@ -38,12 +45,13 @@ const SignUp = () => {
           "content-type": "multipart/form-data",
         },
       });
-      
+
       if (data.success) {
         const { user } = await createUser(email, password);
         if (user.accessToken) {
           await updateUserProfile(name, data.data.display_url);
           toast.success("sign up successfull");
+          setLoginTrigered(false);
           form.reset();
           navigate("/");
         }
@@ -53,15 +61,6 @@ const SignUp = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setLoading(true)
-    const { user } = await signInWithGoogle();
-    if (user.accessToken) {
-      navigate("/");
-      toast.success("Sign Up Successfull");
-    }
-  };
-  if (loading) return <TbFidgetSpinner className="animate-spin" />;
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
@@ -135,12 +134,22 @@ const SignUp = () => {
           </div>
 
           <div>
-            <button
-              type="submit"
-              className="bg-rose-500 w-full rounded-md py-3 text-white"
-            >
-              Continue
-            </button>
+            {(loading && loginTrigered && (
+              <button
+                disabled
+                type="submit"
+                className="bg-rose-500 w-full rounded-md py-3 text-white flex justify-center items-center"
+              >
+                <ImSpinner9 className="animate-spin" />
+              </button>
+            )) || (
+              <button
+                type="submit"
+                className="bg-rose-500 w-full rounded-md py-3 text-white"
+              >
+                Continue
+              </button>
+            )}
           </div>
         </form>
 
