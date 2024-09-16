@@ -48,6 +48,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const roomsCollections = client.db("stayVista").collection("rooms");
+    const usersCollections = client.db("stayVista").collection("users");
 
     // auth related api
     app.post("/jwt", async (req, res) => {
@@ -79,6 +80,32 @@ async function run() {
       }
     });
 
+    // save a user to datebase
+    app.put("/user", async (req, res) => {
+      const user = req.body;
+      const query = {
+        email: user?.email,
+      };
+      // check the user is exist or not
+      const userExist = await usersCollections.findOne(query);
+      if (userExist  && user.role !== 'requested' ) return;
+
+     
+      const options = {
+        upsert: true,
+      };
+
+     
+
+      const result = await usersCollections.updateOne(
+        query,
+        { $set: { ...user, timestamp: Date.now() } },
+        options
+      );
+
+      console.log(result, "the user posting resuls ");
+      res.send(result);
+    });
     //  getting all rooms data:
     app.get("/rooms", async (req, res) => {
       const category = req.query.category;
@@ -115,14 +142,12 @@ async function run() {
       const result = await roomsCollections.find(query).toArray();
       res.send(result);
     });
-    // removing rooms by user  
-    app.delete("/room/:id",async (req, res) => {
+    // removing rooms by user
+    app.delete("/room/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await roomsCollections.deleteOne(query);
       res.send(result);
-     
-
     });
 
     // Send a ping to confirm a successful connection
