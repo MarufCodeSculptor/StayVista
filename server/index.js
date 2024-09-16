@@ -36,6 +36,19 @@ const verifyToken = async (req, res, next) => {
   });
 };
 
+const logger = (req, res, next) => {
+  const { method, url } = req;
+  const timestamp = new Date().toLocaleString("en-GB", { hour12: false });
+  const reset = "\x1b[0m";
+  const yellow = "\x1b[33m";
+  const cyan = "\x1b[36m";
+  const magenta = "\x1b[35m";
+  console.log(
+    `${yellow}[${timestamp}]${reset} ${cyan}${method}${reset} ${magenta}${url}${reset}`
+  );
+  next();
+};
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster1.6mzg5rv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`;
 const client = new MongoClient(uri, {
   serverApi: {
@@ -81,21 +94,27 @@ async function run() {
     });
 
     // save a user to datebase
-    app.put("/user", async (req, res) => {
+    app.put("/user", logger, async (req, res) => {
       const user = req.body;
       const query = {
         email: user?.email,
       };
       // check the user is exist or not
       const userExist = await usersCollections.findOne(query);
-      if (userExist  && user.role !== 'requested' ) return;
 
-     
+      if (userExist) {
+        if (user.status === userExist.status) {
+          console.log("caught as duplicate");
+          return res.send(userExist);
+        } else {
+          console.log("cought as without requested");
+          if (user.status !== "requested") return res.send(userExist);
+        }
+      }
+
       const options = {
         upsert: true,
       };
-
-     
 
       const result = await usersCollections.updateOne(
         query,
@@ -106,8 +125,24 @@ async function run() {
       console.log(result, "the user posting resuls ");
       res.send(result);
     });
+
+    // getting all users data:
+    app.get("/users", logger, async (req, res) => {
+      const result = await usersCollections.find({}).toArray();
+      res.send(result);
+    });
+
+    // getting user role data:
+
+    app.get("/user-role/:email", logger, async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const result = await usersCollections.findOne(query);
+      res.send(result);
+    });
+
     //  getting all rooms data:
-    app.get("/rooms", async (req, res) => {
+    app.get("/rooms", logger, async (req, res) => {
       const category = req.query.category;
       let query = {};
 
@@ -119,8 +154,7 @@ async function run() {
     });
 
     // getting single rooms data:
-
-    app.get("/room/:id", async (req, res) => {
+    app.get("/room/:id", logger, async (req, res) => {
       console.log("backend hitted");
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -129,13 +163,13 @@ async function run() {
     });
 
     // posting room data = >
-    app.post("/room", async (req, res) => {
+    app.post("/room", logger, async (req, res) => {
       const roomData = req.body;
       const result = await roomsCollections.insertOne(roomData);
       res.send(result);
     });
     // getting my-listing data
-    app.get("/my-listings/:email", async (req, res) => {
+    app.get("/my-listings/:email", logger, async (req, res) => {
       // email from params.email
       const email = req.params.email;
       const query = { "host.email": email };
@@ -143,7 +177,7 @@ async function run() {
       res.send(result);
     });
     // removing rooms by user
-    app.delete("/room/:id", async (req, res) => {
+    app.delete("/room/:id", logger, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await roomsCollections.deleteOne(query);

@@ -10,6 +10,7 @@ import Dashboard from "../layouts/Dashboard";
 import Statictics from "../pages/Dashboard/Common/Statictics";
 import Addrooms from "../pages/Dashboard/Host/Addrooms";
 import MyListings from "../pages/Dashboard/Host/MyListings";
+import Profile from "../pages/Dashboard/Profile/Profile";
 
 export const router = createBrowserRouter([
   {
@@ -52,6 +53,11 @@ export const router = createBrowserRouter([
       {
         path: "my-listings",
         element: <MyListings />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
+
       },
     ],
   },
