@@ -1,26 +1,34 @@
-import { useState } from "react";
 import { GrLogout } from "react-icons/gr";
 import { FcSettings } from "react-icons/fc";
-
 import { AiOutlineBars } from "react-icons/ai";
-import { BsFillHouseAddFill, BsGraphUp } from "react-icons/bs";
 import { NavLink } from "react-router-dom";
-
 import { Link } from "react-router-dom";
-import { MdHomeWork } from "react-icons/md";
 import useAuth from "../../hooks/useAuth";
-import MenuItem from "../Dashboard/Sidebar/Menu/MenuItem";
 import useRole from "../../hooks/useRole";
+import HostMenu from "../Dashboard/Sidebar/Menu/HostMenu";
+import GuestMenu from "../Dashboard/Sidebar/Menu/GuestMenu";
+import AdminsMenu from "../Dashboard/Sidebar/Menu/AdminsMenu";
+import ToggleBtn from "../Button/TogleButton";
+import { useState } from "react";
 
 const Sidebar = () => {
   const { logOut } = useAuth();
   const [isActive, setActive] = useState(false);
-  const {role}=useRole();
+  const { role } = useRole();
 
+  console.log(role, "the role ");
   // Sidebar Responsive Handler
   const handleToggle = () => {
     setActive(!isActive);
   };
+
+  const [host, setHost] = useState(false);
+
+  // the togle button for the host and guest mode toggling:
+  const toggleHandler = (e) => {
+    setHost(e.target.checked);
+  };
+
   return (
     <>
       {/* Small Screen Navbar */}
@@ -68,33 +76,28 @@ const Sidebar = () => {
             </div>
           </div>
 
+          {role === "host" && (
+            <div className="mt-10">
+              <ToggleBtn toggleHandler={toggleHandler} />
+            </div>
+          )}
+
           {/* Nav Items */}
           <div className="flex flex-col justify-between flex-1 mt-6">
             {/* Conditional toggle button here.. */}
 
             {/*  Menu Items */}
+            <nav>{role === "guest" && <GuestMenu />}</nav>
+
             <nav>
-              {/* Statistics */}
-             <div>
-             <MenuItem
-                label={"Statistics"}
-                address={"/dashboard"}
-                icon={BsGraphUp}
-              />
-              {/* Add Room */}
-              <MenuItem
-                label={"Add Rooms"}
-                address={"add-room"}
-                icon={BsFillHouseAddFill}
-              />
-              {/* My Listings */}
-              <MenuItem
-                label={"My-Listing"}
-                address={"my-listings"}
-                icon={MdHomeWork}
-              />
-             </div>
+              {role === "host" && host ? (
+                <HostMenu />
+              ) : (
+                role === "host" && <GuestMenu />
+              )}
             </nav>
+
+            <nav>{role === "admin" && <AdminsMenu />}</nav>
           </div>
         </div>
 
@@ -115,7 +118,7 @@ const Sidebar = () => {
             <span className="mx-4 font-medium">Profile</span>
           </NavLink>
           <button
-            // onClick={logOut}
+            onClick={logOut}
             className="flex w-full items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-300   hover:text-gray-700 transition-colors duration-300 transform"
           >
             <GrLogout className="w-5 h-5" />

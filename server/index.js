@@ -108,6 +108,7 @@ async function run() {
           return res.send(userExist);
         } else {
           console.log("cought as without requested");
+
           if (user.status !== "requested") return res.send(userExist);
         }
       }
@@ -123,6 +124,22 @@ async function run() {
       );
 
       console.log(result, "the user posting resuls ");
+      res.send(result);
+    });
+
+    app.put("/user-role/:email",logger, async (req, res) => {
+      console.log(req.params.email, "the user posting");
+      const email = req.body.email;
+      const data = req.body;
+     
+      console.log(data);
+      const query = { email };
+      const options = { upsert: true };
+      const result = await usersCollections.updateOne(
+        query,
+        { $set: { ...data,timestamp: Date.now() } },
+        options
+      );
       res.send(result);
     });
 
@@ -165,6 +182,7 @@ async function run() {
     // posting room data = >
     app.post("/room", logger, async (req, res) => {
       const roomData = req.body;
+
       const result = await roomsCollections.insertOne(roomData);
       res.send(result);
     });
@@ -200,5 +218,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`StayVista is running on port ${port}`);
+  console.log(`StayVista Server is running on port ${port}`);
 });

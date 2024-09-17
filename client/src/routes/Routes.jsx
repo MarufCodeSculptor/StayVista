@@ -11,6 +11,7 @@ import Statictics from "../pages/Dashboard/Common/Statictics";
 import Addrooms from "../pages/Dashboard/Host/Addrooms";
 import MyListings from "../pages/Dashboard/Host/MyListings";
 import Profile from "../pages/Dashboard/Profile/Profile";
+import ManageUsers from "../pages/Dashboard/Admin/ManageUser/ManageUser";
 
 export const router = createBrowserRouter([
   {
@@ -42,14 +43,14 @@ export const router = createBrowserRouter([
     element: <Dashboard />,
     children: [
       {
-        index:true,
+        index: true,
         element: <Statictics />,
       },
       {
         path: "add-room",
         element: <Addrooms />,
       },
-      
+
       {
         path: "my-listings",
         element: <MyListings />,
@@ -57,7 +58,11 @@ export const router = createBrowserRouter([
       {
         path: "profile",
         element: <Profile />,
-
+      },
+      // admins routes
+      {
+        path: "manage-user",
+        element: <ManageUsers />,
       },
     ],
   },
