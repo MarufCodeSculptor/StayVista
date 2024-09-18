@@ -21,8 +21,8 @@ app.use(cookieParser());
 
 // Verify Token Middleware
 const verifyToken = async (req, res, next) => {
+  console.log("come to verify token");
   const token = req.cookies?.token;
-  console.log(token);
   if (!token) {
     return res.status(401).send({ message: "unauthorized access" });
   }
@@ -62,6 +62,21 @@ async function run() {
   try {
     const roomsCollections = client.db("stayVista").collection("rooms");
     const usersCollections = client.db("stayVista").collection("users");
+
+    const verifyAdmin = async (req, res, next) => {
+      const user = req.user;
+      console.log("come to verifyAdmin", user);
+      const userExist = await usersCollections.findOne({ email: user.email });
+
+      if (!userExist || userExist.role !== "admin") {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+
+      console.log("going to next");
+      next();
+    };
+
+    
 
     // auth related api
     app.post("/jwt", async (req, res) => {
@@ -151,15 +166,14 @@ async function run() {
       res.send(result);
     });
 
-    // getting all users data:
-    app.get("/users", logger, async (req, res) => {
+    // getting all users data: Admin routes
+    app.get("/users", logger, verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollections.find({}).toArray();
       res.send(result);
     });
 
-    // getting user role data:
-
-    app.get("/user-role/:email", logger, async (req, res) => {
+    // getting user's personal role data:
+    app.get("/user-role/:email", logger, verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const result = await usersCollections.findOne(query);
@@ -203,7 +217,7 @@ async function run() {
       res.send(result);
     });
     // removing rooms by user
-    app.delete("/room/:id", logger, async (req, res) => {
+    app.delete("/room/:id", logger, verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await roomsCollections.deleteOne(query);

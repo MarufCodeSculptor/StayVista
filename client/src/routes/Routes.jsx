@@ -12,6 +12,9 @@ import Addrooms from "../pages/Dashboard/Host/Addrooms";
 import MyListings from "../pages/Dashboard/Host/MyListings";
 import Profile from "../pages/Dashboard/Profile/Profile";
 import ManageUsers from "../pages/Dashboard/Admin/ManageUser/ManageUser";
+import AdminRoute from "./AdminRoute";
+import AllBookins from "../pages/Dashboard/AllBookings/AllBookins";
+import HostRoute from "./HostRoute";
 
 export const router = createBrowserRouter([
   {
@@ -27,8 +30,7 @@ export const router = createBrowserRouter([
         path: "/room/:id",
         element: (
           <PrivateRoute>
-            {" "}
-            <RoomDetails />{" "}
+            <RoomDetails />
           </PrivateRoute>
         ),
         loader: ({ params }) =>
@@ -40,29 +42,66 @@ export const router = createBrowserRouter([
   { path: "/signup", element: <SignUp /> },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <PrivateRoute>
+        <Dashboard />
+      </PrivateRoute>
+    ),
     children: [
+      // normal users menu
       {
         index: true,
-        element: <Statictics />,
+        element: (
+          <PrivateRoute>
+            <Statictics />
+          </PrivateRoute>
+        ),
       },
+
+      {
+        path: "profile",
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
+      },
+      // host mensus
       {
         path: "add-room",
-        element: <Addrooms />,
+        element: (
+          <PrivateRoute>
+            <HostRoute>
+              <Addrooms />
+            </HostRoute>
+          </PrivateRoute>
+        ),
       },
 
       {
         path: "my-listings",
-        element: <MyListings />,
-      },
-      {
-        path: "profile",
-        element: <Profile />,
+        element: (
+          <PrivateRoute>
+         <HostRoute>   <MyListings /></HostRoute>
+          </PrivateRoute>
+        ),
       },
       // admins routes
       {
         path: "manage-user",
-        element: <ManageUsers />,
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "all-bookings",
+        element: (
+          <AdminRoute>
+            <AllBookins />
+          </AdminRoute>
+        ),
       },
     ],
   },
