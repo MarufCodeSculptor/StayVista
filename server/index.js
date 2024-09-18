@@ -76,7 +76,17 @@ async function run() {
       next();
     };
 
-    
+    const verifyHost = async (req, res, next) => {
+      const user = req.user;
+      console.log("come to verifyHost", user);
+      const userExist = await usersCollections.findOne({ email: user.email });
+
+      if (!userExist || userExist.role !== "host") {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      console.log("going to next");
+      next();
+    };
 
     // auth related api
     app.post("/jwt", async (req, res) => {
@@ -202,14 +212,14 @@ async function run() {
     });
 
     // posting room data = >
-    app.post("/room", logger, async (req, res) => {
+    app.post("/room", logger,verifyToken,verifyHost, async (req, res) => {
       const roomData = req.body;
 
       const result = await roomsCollections.insertOne(roomData);
       res.send(result);
     });
     // getting my-listing data
-    app.get("/my-listings/:email", logger, async (req, res) => {
+    app.get("/my-listings/:email", logger,verifyToken,verifyHost, async (req, res) => {
       // email from params.email
       const email = req.params.email;
       const query = { "host.email": email };

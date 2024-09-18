@@ -5,20 +5,26 @@ import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
+
+
+
 const UserDataRow = ({ user, refetch, index }) => {
-  const { user: Theuser, laoding } = useAuth();
+
+
+  const { user: logedUser, laoding } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
+
   const closeModal = () => {
     setIsOpen(false);
   };
   const axiosSecure = useAxiosSecure();
   const { mutateAsync } = useMutation({
     anabled: !laoding,
-    mutationKey: ["update-role", Theuser],
+    mutationKey: ["update-role", logedUser],
     mutationFn: async (userData) => {
       const { data } = await axiosSecure.put(
-        `/user-role/${Theuser?.email}`,
+        `/user-role/${logedUser?.email}`,
         userData
       );
       return data;
@@ -31,17 +37,22 @@ const UserDataRow = ({ user, refetch, index }) => {
   });
 
   const modalHandler = async (selected) => {
-   
-    const updatedUserData = { email:user.email, role: selected ,status:'Verified' };
-
-    try {
-      // call muted async with updateuser data
-      await mutateAsync(updatedUserData);
-      setIsOpen(false);
-      refetch();
-    } catch (err) {
-      console.log(err);
-    }
+    const updatedUserData = {
+      email: user.email,
+      role: selected,
+      status: "Verified",
+    };
+    if(user.email === logedUser.email) return toast.error('Cannot procied')
+    if (user.status === "Verified" && user.role === 'guest')return toast.error('Cannot process: user did not request');
+    
+      try {
+        // call muted async with updateuser data
+        await mutateAsync(updatedUserData);
+        setIsOpen(false);
+        refetch();
+      } catch (err) {
+        console.log(err);
+      }
   };
   return (
     <tr>

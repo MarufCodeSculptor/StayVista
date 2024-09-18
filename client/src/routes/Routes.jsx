@@ -82,7 +82,9 @@ export const router = createBrowserRouter([
         path: "my-listings",
         element: (
           <PrivateRoute>
-         <HostRoute>   <MyListings /></HostRoute>
+            <HostRoute>
+              <MyListings />
+            </HostRoute>
           </PrivateRoute>
         ),
       },
