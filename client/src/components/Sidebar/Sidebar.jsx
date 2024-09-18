@@ -10,6 +10,7 @@ import GuestMenu from "../Dashboard/Sidebar/Menu/GuestMenu";
 import AdminsMenu from "../Dashboard/Sidebar/Menu/AdminsMenu";
 import ToggleBtn from "../Button/TogleButton";
 import { useState } from "react";
+import BecomeHost from "../Dashboard/Sidebar/Menu/BecomeHost";
 
 const Sidebar = () => {
   const { logOut } = useAuth();
@@ -22,11 +23,11 @@ const Sidebar = () => {
     setActive(!isActive);
   };
 
-  const [host, setHost] = useState(false);
+  const [anabled, setAnabled] = useState(false);
 
   // the togle button for the host and guest mode toggling:
   const toggleHandler = (e) => {
-    setHost(e.target.checked);
+    setAnabled(e.target.checked);
   };
 
   return (
@@ -83,21 +84,22 @@ const Sidebar = () => {
           )}
 
           {/* Nav Items */}
-          <div className="flex flex-col justify-between flex-1 mt-6">
+          <div className="flex flex-col justify-between items-center flex-1 mt-6">
             {/* Conditional toggle button here.. */}
 
             {/*  Menu Items */}
-            <nav>{role === "guest" && <GuestMenu />}</nav>
-
             <nav>
-              {role === "host" && host ? (
+              {role === "guest" && <GuestMenu />}
+
+              {role === "host" && anabled ? (
                 <HostMenu />
               ) : (
                 role === "host" && <GuestMenu />
               )}
-            </nav>
 
-            <nav>{role === "admin" && <AdminsMenu />}</nav>
+              {role === "admin" && <AdminsMenu />}
+              {role === "guest" && <BecomeHost />}
+            </nav>
           </div>
         </div>
 

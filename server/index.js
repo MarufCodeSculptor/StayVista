@@ -109,7 +109,15 @@ async function run() {
         } else {
           console.log("cought as without requested");
 
-          if (user.status !== "requested") return res.send(userExist);
+          if (
+            user.status === "requested" &&
+            userExist.status === "Verified" &&
+            userExist.role === "host"
+          ) {
+            return res.send(userExist);
+          } else {
+            if (user.status !== "requested") return res.send(userExist);
+          }
         }
       }
 
@@ -127,17 +135,17 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/user-role/:email",logger, async (req, res) => {
+    app.put("/user-role/:email", logger, async (req, res) => {
       console.log(req.params.email, "the user posting");
       const email = req.body.email;
       const data = req.body;
-     
+
       console.log(data);
       const query = { email };
       const options = { upsert: true };
       const result = await usersCollections.updateOne(
         query,
-        { $set: { ...data,timestamp: Date.now() } },
+        { $set: { ...data, timestamp: Date.now() } },
         options
       );
       res.send(result);

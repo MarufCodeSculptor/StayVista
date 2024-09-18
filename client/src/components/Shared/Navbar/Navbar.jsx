@@ -7,9 +7,12 @@ import avatarImg from "../../../assets/images/placeholder.jpg";
 import HostModal from "../../HostModal/HostModal";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import toast from "react-hot-toast";
+import useRole from "../../../hooks/useRole";
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
+  const { role, isLoading } = useRole();
+  let isGuest = role === "guest";
   const [isOpen, setIsOpen] = useState(false);
   const axiosSecure = useAxiosSecure();
   // mdolas code:
@@ -18,12 +21,12 @@ const Navbar = () => {
 
   const hostData = {
     email: user?.email,
-    role: "guest",
     status: "requested",
   };
   const handleHostReq = async () => {
     try {
       const { data } = await axiosSecure.put("/user", hostData);
+      console.log(data, "host request response");
 
       if (data.modifiedCount > 0) {
         console.log(data);
@@ -57,7 +60,7 @@ const Navbar = () => {
               <div className="flex flex-row items-center gap-3">
                 {/* Become A Host btn */}
                 <div className="md:block">
-                  {user && (
+                  {user && !isLoading && isGuest && (
                     <div>
                       <button
                         onClick={() => setModalOpen(true)}
