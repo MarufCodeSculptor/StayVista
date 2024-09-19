@@ -5,28 +5,28 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import PropTypes from "prop-types";
 import { DateRange } from "react-date-range";
 import { categories } from "../../Categories/CategoriesData";
 
-const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
-  const [imagePreview, setImagePreview] = useState("");
-  const [imageTitle, setImageTitle] = useState("_Select Image");
-  const handleImage = (image) => {
-    setImagePreview(URL.createObjectURL(image.target.files[0]));
-    setImageTitle(image.target.files[0].name);
-  };
+const RoomUpdateModal = ({
+  handleUpdate,
+  setClose,
+  open,
+  room,
+  formsValue,
+}) => {
 
-  const [state, setState] = useState({
-    startDate: new Date(),
-    endDate: null,
-    key: "selection",
-  });
 
-  const handleDates = (item) => {
-    setState(item.selection);
-  };
+
+  const { formsState, funcs } = formsValue;
+  console.log(formsState, funcs);
+
+  
+
+
+
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setClose}>
@@ -84,6 +84,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                           id="location"
                           type="text"
                           placeholder="Location"
+                          defaultValue={room.location}
                           required
                         />
                       </div>
@@ -99,6 +100,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                           required
                           className="w-full px-4 py-3 border-rose-300 focus:outline-rose-500 rounded-md"
                           name="category"
+                          defaultValue={room.category}
                         >
                           {categories.map((category) => (
                             <option value={category.label} key={category.label}>
@@ -120,9 +122,9 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                           showDateDisplay={false}
                           rangeColors={["#F6536D"]}
                           editableDateInputs={true}
-                          onChange={(item) => handleDates(item)}
+                          onChange={(item) => funcs.handleDates(item)}
                           moveRangeOnFirstSelection={false}
-                          ranges={[state]}
+                          ranges={[formsState.state]}
                         />
                       </div>
                     </div>
@@ -135,6 +137,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                         <input
                           className="w-full px-4 py-3 text-gray-800 border border-rose-300 focus:outline-rose-500 rounded-md "
                           name="title"
+                          defaultValue={room.title}
                           id="title"
                           type="text"
                           placeholder="Title"
@@ -143,8 +146,12 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                       </div>
                       {/* image upload container */}
                       <div className="w-full  min-h-32 rounded-lg flex items-center justify-center">
-                        {imagePreview && (
-                          <img className="w-64" src={imagePreview} alt="" />
+                        {formsState.imagePreview && (
+                          <img
+                            className="w-64"
+                            src={formsState.imagePreview}
+                            alt=""
+                          />
                         )}
                       </div>
 
@@ -153,7 +160,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                           <div className="flex flex-col w-max mx-auto text-center">
                             <label>
                               <input
-                                onChange={handleImage}
+                                onChange={funcs.handleImage}
                                 className="text-sm cursor-pointer w-36 hidden"
                                 type="file"
                                 name="image"
@@ -162,12 +169,14 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                                 hidden
                               />
                               <div className="bg-rose-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-rose-500">
-                                {(imageTitle &&
-                                  imageTitle.length > 20 &&
-                                  imageTitle.split(".")[0].slice(0, 20) +
+                                {(formsState.imageTitle &&
+                                  formsState.imageTitle.length > 20 &&
+                                  formsState.imageTitle
+                                    .split(".")[0]
+                                    .slice(0, 20) +
                                     "." +
-                                    imageTitle.split(".")[1]) ||
-                                  imageTitle}
+                                    formsState.imageTitle.split(".")[1]) ||
+                                  formsState.imageTitle}
                               </div>
                             </label>
                           </div>
@@ -189,6 +198,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                             type="number"
                             placeholder="Price"
                             required
+                            defaultValue={room.price}
                           />
                         </div>
 
@@ -202,6 +212,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                           <input
                             className="w-full px-4 py-3 text-gray-800 border border-rose-300 focus:outline-rose-500 rounded-md "
                             name="guests"
+                            defaultValue={room.guests}
                             id="guest"
                             type="number"
                             placeholder="Total guest"
@@ -224,6 +235,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                             id="bedrooms"
                             type="number"
                             placeholder="Bedrooms"
+                            defaultValue={room.bedrooms}
                             required
                           />
                         </div>
@@ -239,6 +251,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                             className="w-full px-4 py-3 text-gray-800 border border-rose-300 focus:outline-rose-500 rounded-md "
                             name="bathrooms"
                             id="bathrooms"
+                            defaultValue={room.bathrooms}
                             type="number"
                             placeholder="Bathrooms"
                             required
@@ -258,6 +271,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room }) => {
                           id="description"
                           className="block rounded-md focus:rose-300 w-full h-32 px-4 py-3 text-gray-800  border border-rose-300 focus:outline-rose-500 "
                           name="description"
+                          defaultValue={room.description}
                         ></textarea>
                       </div>
                     </div>
@@ -292,6 +306,8 @@ RoomUpdateModal.propTypes = {
   setClose: PropTypes.func,
   open: PropTypes.bool,
   handleUpdate: PropTypes.func.isRequired,
+  formsValue: PropTypes.object,
+  room: PropTypes.object
 };
 
 export default RoomUpdateModal;

@@ -6,11 +6,38 @@ import RoomUpdateModal from "../Modal/RoomUpdateModal/RoomUpdateModal";
 
 const RoomDataRow = ({ room, index, handleDelete }) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const handleClose = () => {
     setOpen(false);
   };
+  // form related state and functions =>
+  const [imagePreview, setImagePreview] = useState(room.image);
+  const [imageTitle, setImageTitle] = useState("_Select Image");
+  const handleImage = (image) => {
+    setImagePreview(URL.createObjectURL(image.target.files[0]));
+    setImageTitle(image.target.files[0].name);
+  };
 
-  // make a modla stat and lose funcions
+  const [state, setState] = useState({
+    startDate: room.from,
+    endDate: room.to,
+    key: "selection",
+  });
+
+  const handleDates = (item) => {
+    setState(item.selection);
+  };
+  const formsValue = {
+    formsState: {
+      imagePreview: imagePreview,
+      imageTitle: imageTitle,
+      state: state,
+    },
+    funcs: { handleDates: handleDates, handleImage: handleImage },
+  };
+
+
+  // make a modal for showing previous information
   const [open, setOpen] = useState(false);
   const setClose = () => setOpen(false);
 
@@ -93,6 +120,7 @@ const RoomDataRow = ({ room, index, handleDelete }) => {
           open={open}
           handleUpdate={handleUpdate}
           room={room}
+          formsValue={formsValue}
         />
       </td>
     </tr>
