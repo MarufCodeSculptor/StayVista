@@ -13,7 +13,8 @@ const RoomReservation = ({ room }) => {
     key: "selection",
   };
   const [state, setState] = useState(theDate);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  console.log(user, "the user ");
 
   const totalDays = parseInt(
     differenceInCalendarDays(new Date(room.to), new Date(room.from)) + 1
@@ -24,7 +25,7 @@ const RoomReservation = ({ room }) => {
   const bookingInfo = {
     ...room,
     guest: {
-      name: user?.name,
+      name: user?.displayName,
       email: user?.email,
     },
     price: totalPrice,
@@ -61,12 +62,14 @@ const RoomReservation = ({ room }) => {
         <Button onClick={() => setIsOpen(true)} label={"Reserve"} />
         {/*   a modal wil appy here :  */}
 
-        <RoomReserveModal
-          closeModal={closeModal}
-          isOpen={isOpen}
-          bookingInfo={bookingInfo}
-          handleReserve={handleReserve}
-        />
+        {!loading && (
+          <RoomReserveModal
+            closeModal={closeModal}
+            isOpen={isOpen}
+            bookingInfo={bookingInfo}
+            handleReserve={handleReserve}
+          />
+        )}
       </div>
       <hr />
       <div className="p-4 flex items-center justify-between font-semibold text-lg">

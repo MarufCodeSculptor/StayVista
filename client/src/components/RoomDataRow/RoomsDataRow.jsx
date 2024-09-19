@@ -2,11 +2,20 @@ import PropTypes from "prop-types";
 import { format } from "date-fns";
 import DeleteModal from "../Modal/DeleteModal";
 import { useState } from "react";
+import RoomUpdateModal from "../Modal/RoomUpdateModal/RoomUpdateModal";
 
-const RoomDataRow = ({ room,index, handleDelete }) => {
-  const [isOpen, setOpen] = useState(false);
+const RoomDataRow = ({ room, index, handleDelete }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => {
     setOpen(false);
+  };
+
+  // make a modla stat and lose funcions
+  const [open, setOpen] = useState(false);
+  const setClose = () => setOpen(false);
+
+  const handleUpdate = async (form) => {
+    console.log("argumenst resutls", form);
   };
 
   return (
@@ -50,7 +59,7 @@ const RoomDataRow = ({ room,index, handleDelete }) => {
       {/* delete button  */}
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => setIsOpen(true)}
           className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
         >
           <span
@@ -60,17 +69,31 @@ const RoomDataRow = ({ room,index, handleDelete }) => {
           <span className="relative">Delete</span>
         </button>
         {/* Delete modal */}
-        <DeleteModal isOpen={isOpen}  closeModal={handleClose} handleDelete={handleDelete} id={room?._id} />
+        <DeleteModal
+          isOpen={isOpen}
+          closeModal={handleClose}
+          handleDelete={handleDelete}
+          id={room?._id}
+        />
       </td>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <span className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+        <button
+          onClick={() => setOpen(true)}
+          className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
+        >
           <span
             aria-hidden="true"
             className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
           ></span>
           <span className="relative">Update</span>
-        </span>
+        </button>
         {/* Update Modal */}
+        <RoomUpdateModal
+          setClose={setClose}
+          open={open}
+          handleUpdate={handleUpdate}
+          room={room}
+        />
       </td>
     </tr>
   );

@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { Fragment } from "react";
 
 const BookingModal = ({ closeModal, isOpen, bookingInfo, handleReserve }) => {
-    console.log(bookingInfo);
+  console.log(bookingInfo, "the booking info");
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -56,7 +56,7 @@ const BookingModal = ({ closeModal, isOpen, bookingInfo, handleReserve }) => {
                 </div>
                 <div className="mt-2">
                   <p className="text-sm text-gray-500">
-                    {/* Guest: {bookingInfo?.guest?.name}    */}
+                    Guest: {bookingInfo?.guest?.name}
                   </p>
                 </div>
                 <div className="mt-2">
@@ -84,8 +84,21 @@ const BookingModal = ({ closeModal, isOpen, bookingInfo, handleReserve }) => {
                     handleReserve();
                   }}
                 >
-                  <div>
-                    <button> Submit</button>
+                  <div className="flex mt-2 justify-around">
+                    <button
+                      
+                      type="submit"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-green-100 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                    >
+                      Continue
+                    </button>
+                    <button
+                      onClick={closeModal}
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </form>
               </DialogPanel>
