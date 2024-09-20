@@ -6,10 +6,13 @@ import useAuth from "../../../hooks/useAuth";
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 import RoomsDataRow from "../../../components/RoomDataRow/RoomsDataRow";
 import toast from "react-hot-toast";
+import { postImage } from "../../../api/utils";
+import { useState } from "react";
 
 const MyListings = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
+  const [inProgress,setInProgress] =useState(false)
 
   //  getting users adding data
   const {
@@ -24,7 +27,19 @@ const MyListings = () => {
       return data;
     },
   });
-  //  handling remove data => use useMutaaiosn
+  //  handle  delete  code :
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  const deltedModalConfig = {
+    isOpen,
+    handle: { handleClose, setIsOpen },
+  };
+
+
+
   const { mutateAsync } = useMutation({
     mutationKey: ["remove-room"],
     mutationFn: async (roomdId) => {
@@ -33,7 +48,11 @@ const MyListings = () => {
     },
 
     onSuccess: async (data) => {
-      if (data.deletedCount > 0) toast.success("Deleted successfully");
+      if (data.deletedCount > 0) {
+        toast.success("Deleted successfully");
+        // make modal delete modal close :
+        handleClose()
+      }
     },
   });
 
@@ -45,6 +64,75 @@ const MyListings = () => {
       console.log(err, "from deleting request for rooms");
     }
   };
+  // update related codes :
+
+  // update modal's state and function :
+  const [open, setOpen] = useState(false);
+  const setClose = () => setOpen(false);
+  const updateModalConfig = {
+    open,
+    handle: { setClose, setOpen },
+  };
+
+  const { mutateAsync: updateRoom } = useMutation({
+    mutationKey: ["image-update"],
+    mutationFn: async ({ room, id }) => {
+      const { data } = await axiosSecure.put(`/room/${id}`, room);
+      return data;
+    },
+
+    onSuccess: async (data) => {
+      console.log(data, "rooms posting response");
+      if (data.modifiedCount) {
+        toast.success("successfully posted data");
+        setClose();
+      }
+    },
+  });
+
+  const handleUpdate = async (formData) => {
+    console.log("argumenst resutls", formData);
+    const { form, state, id } = formData;
+
+    const title = form.title.value;
+    const description = form.description.value;
+    const location = form.location.value;
+    const category = form.category.value;
+    const price = form.price.value;
+    const guests = form.guests.value;
+    const bathrooms = form.bathrooms.value;
+    const bedrooms = form.bedrooms.value;
+    const image = form.image.files[0];
+
+    try {
+      const imageURL = await postImage(image);
+
+      if (imageURL) {
+        const updatedRoom = {
+          title,
+          description,
+          location,
+          category,
+          price,
+          guests,
+          bathrooms,
+          bedrooms,
+          image: imageURL,
+          to: state.startDate,
+          from: state.endDate,
+        };
+        await updateRoom({ room: { ...updatedRoom }, id });
+        refetch();
+      }
+    } catch (err) {
+      // print error here
+      console.log(err);
+    } finally {
+      setClose();
+    }
+  };
+
+  // update related code end here
 
   if (isLoading) return <LoadingSpinner />;
   if (error)
@@ -88,6 +176,11 @@ const MyListings = () => {
                         index={index}
                         refetch={refetch}
                         handleDelete={handleDelete}
+                        user={user}
+                        handleUpdate={handleUpdate}
+                        updateModalConfig={updateModalConfig}
+                        deltedModalConfig={deltedModalConfig}
+                        inProgress={inProgress}
                       ></RoomsDataRow>
                     );
                   })}

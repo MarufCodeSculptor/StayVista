@@ -189,8 +189,13 @@ async function run() {
       const result = await usersCollections.findOne(query);
       res.send(result);
     });
-
-    //  getting all rooms data:
+    // rooom create
+    app.post("/room", logger, verifyToken, verifyHost, async (req, res) => {
+      const roomData = req.body;
+      const result = await roomsCollections.insertOne(roomData);
+      res.send(result);
+    });
+    //  room read
     app.get("/rooms", logger, async (req, res) => {
       const category = req.query.category;
       let query = {};
@@ -201,8 +206,22 @@ async function run() {
 
       res.send(result);
     });
+    //room read for host 
+    app.get(
+      "/my-listings/:email",
+      logger,
+      verifyToken,
+      verifyHost,
+      async (req, res) => {
+        // email from params.email
+        const email = req.params.email;
+        const query = { "host.email": email };
+        const result = await roomsCollections.find(query).toArray();
+        res.send(result);
+      }
+    );
 
-    // getting single rooms data:
+    // room read single
     app.get("/room/:id", logger, async (req, res) => {
       console.log("backend hitted");
       const id = req.params.id;
@@ -210,22 +229,18 @@ async function run() {
       const result = await roomsCollections.findOne(query);
       res.send(result);
     });
+// room updates:
 
-    // posting room data = >
-    app.post("/room", logger,verifyToken,verifyHost, async (req, res) => {
-      const roomData = req.body;
 
-      const result = await roomsCollections.insertOne(roomData);
-      res.send(result);
-    });
-    // getting my-listing data
-    app.get("/my-listings/:email", logger,verifyToken,verifyHost, async (req, res) => {
-      // email from params.email
-      const email = req.params.email;
-      const query = { "host.email": email };
-      const result = await roomsCollections.find(query).toArray();
-      res.send(result);
-    });
+
+app.put('/room/:id',logger,verifyToken,verifyHost,async(req,res)=>{
+  const id = req.params.id;
+  const roomData = req.body;
+  const query = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const result = await roomsCollections.updateOne(query, { $set: roomData }, options);
+  res.send(result);
+})
     // removing rooms by user
     app.delete("/room/:id", logger, verifyToken, async (req, res) => {
       const id = req.params.id;

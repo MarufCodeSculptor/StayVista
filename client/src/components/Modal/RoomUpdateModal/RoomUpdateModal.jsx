@@ -5,27 +5,32 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import PropTypes from "prop-types";
 import { DateRange } from "react-date-range";
 import { categories } from "../../Categories/CategoriesData";
+import LoadingSpinner from "../../Shared/LoadingSpinner";
 
-const RoomUpdateModal = ({
-  handleUpdate,
-  setClose,
-  open,
-  room,
-  formsValue,
-}) => {
+const RoomUpdateModal = ({ handleUpdate, setClose, open, room,inProgress }) => {
+  // handling image  and dates stte and fucntions =>
+  const [imagePreview, setImagePreview] = useState(room.image);
+  const [imageTitle, setImageTitle] = useState("_Select Image");
+  const handleImage = (image) => {
+    setImagePreview(URL.createObjectURL(image.target.files[0]));
+    setImageTitle(image.target.files[0].name);
+  };
+  const [state, setState] = useState({
+    startDate: room.from,
+    endDate: room.to,
+    key: "selection",
+  });
+  const handleDates = (item) => {
+    setState(item.selection);
+  };
 
 
 
-  const { formsState, funcs } = formsValue;
-  console.log(formsState, funcs);
-
-  
-
-
+  if(inProgress) return <LoadingSpinner/>
 
   return (
     <Transition appear show={open} as={Fragment}>
@@ -65,8 +70,12 @@ const RoomUpdateModal = ({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    console.log("room update  submit button is working fine");
-                    handleUpdate(e.target);
+                    const formData = {
+                      form: e.target,
+                      state,
+                      id:room._id
+                    };
+                    handleUpdate(formData);
                   }}
                 >
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -122,9 +131,9 @@ const RoomUpdateModal = ({
                           showDateDisplay={false}
                           rangeColors={["#F6536D"]}
                           editableDateInputs={true}
-                          onChange={(item) => funcs.handleDates(item)}
+                          onChange={(item) => handleDates(item)}
                           moveRangeOnFirstSelection={false}
-                          ranges={[formsState.state]}
+                          ranges={[state]}
                         />
                       </div>
                     </div>
@@ -146,12 +155,8 @@ const RoomUpdateModal = ({
                       </div>
                       {/* image upload container */}
                       <div className="w-full  min-h-32 rounded-lg flex items-center justify-center">
-                        {formsState.imagePreview && (
-                          <img
-                            className="w-64"
-                            src={formsState.imagePreview}
-                            alt=""
-                          />
+                        {imagePreview && (
+                          <img className="w-64" src={imagePreview} alt="" />
                         )}
                       </div>
 
@@ -160,7 +165,7 @@ const RoomUpdateModal = ({
                           <div className="flex flex-col w-max mx-auto text-center">
                             <label>
                               <input
-                                onChange={funcs.handleImage}
+                                onChange={handleImage}
                                 className="text-sm cursor-pointer w-36 hidden"
                                 type="file"
                                 name="image"
@@ -169,14 +174,12 @@ const RoomUpdateModal = ({
                                 hidden
                               />
                               <div className="bg-rose-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-rose-500">
-                                {(formsState.imageTitle &&
-                                  formsState.imageTitle.length > 20 &&
-                                  formsState.imageTitle
-                                    .split(".")[0]
-                                    .slice(0, 20) +
+                                {(imageTitle &&
+                                  imageTitle.length > 20 &&
+                                  imageTitle.split(".")[0].slice(0, 20) +
                                     "." +
-                                    formsState.imageTitle.split(".")[1]) ||
-                                  formsState.imageTitle}
+                                    imageTitle.split(".")[1]) ||
+                                  imageTitle}
                               </div>
                             </label>
                           </div>
@@ -307,7 +310,8 @@ RoomUpdateModal.propTypes = {
   open: PropTypes.bool,
   handleUpdate: PropTypes.func.isRequired,
   formsValue: PropTypes.object,
-  room: PropTypes.object
+  room: PropTypes.object,
+  inProgress:PropTypes.bool,
 };
 
 export default RoomUpdateModal;

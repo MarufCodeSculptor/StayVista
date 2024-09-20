@@ -1,49 +1,23 @@
-import PropTypes from "prop-types";
+import PropTypes, { object } from "prop-types";
 import { format } from "date-fns";
 import DeleteModal from "../Modal/DeleteModal";
-import { useState } from "react";
+
 import RoomUpdateModal from "../Modal/RoomUpdateModal/RoomUpdateModal";
+import LoadingSpinner from "../Shared/LoadingSpinner";
 
-const RoomDataRow = ({ room, index, handleDelete }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-  // form related state and functions =>
-  const [imagePreview, setImagePreview] = useState(room.image);
-  const [imageTitle, setImageTitle] = useState("_Select Image");
-  const handleImage = (image) => {
-    setImagePreview(URL.createObjectURL(image.target.files[0]));
-    setImageTitle(image.target.files[0].name);
-  };
-
-  const [state, setState] = useState({
-    startDate: room.from,
-    endDate: room.to,
-    key: "selection",
-  });
-
-  const handleDates = (item) => {
-    setState(item.selection);
-  };
-  const formsValue = {
-    formsState: {
-      imagePreview: imagePreview,
-      imageTitle: imageTitle,
-      state: state,
-    },
-    funcs: { handleDates: handleDates, handleImage: handleImage },
-  };
+const RoomDataRow = ({
+  room,
+  index,
+  handleDelete,
+  handleUpdate,
+  updateModalConfig,
+  deltedModalConfig,
+  inProgress
+}) => {
 
 
-  // make a modal for showing previous information
-  const [open, setOpen] = useState(false);
-  const setClose = () => setOpen(false);
 
-  const handleUpdate = async (form) => {
-    console.log("argumenst resutls", form);
-  };
+ 
 
   return (
     <tr>
@@ -86,7 +60,7 @@ const RoomDataRow = ({ room, index, handleDelete }) => {
       {/* delete button  */}
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => deltedModalConfig.handle.setIsOpen(true)}
           className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
         >
           <span
@@ -97,15 +71,16 @@ const RoomDataRow = ({ room, index, handleDelete }) => {
         </button>
         {/* Delete modal */}
         <DeleteModal
-          isOpen={isOpen}
-          closeModal={handleClose}
+          isOpen={deltedModalConfig.isOpen}
+          handleClose={deltedModalConfig.handle.handleClose}
           handleDelete={handleDelete}
           id={room?._id}
+          inProgress={inProgress}
         />
       </td>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => updateModalConfig.handle.setOpen(true)}
           className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
         >
           <span
@@ -116,11 +91,11 @@ const RoomDataRow = ({ room, index, handleDelete }) => {
         </button>
         {/* Update Modal */}
         <RoomUpdateModal
-          setClose={setClose}
-          open={open}
+          setClose={updateModalConfig.handle.setClose}
+          open={updateModalConfig.open}
           handleUpdate={handleUpdate}
           room={room}
-          formsValue={formsValue}
+          inProgress={inProgress}
         />
       </td>
     </tr>
@@ -132,6 +107,12 @@ RoomDataRow.propTypes = {
   refetch: PropTypes.func,
   index: PropTypes.number,
   handleDelete: PropTypes.func,
+  user: PropTypes.object,
+  handleUpdate: PropTypes.func,
+  imageLoading: PropTypes.bool,
+  updateModalConfig: object,
+  deltedModalConfig: object,
+  inProgress:PropTypes.bool
 };
 
 export default RoomDataRow;
