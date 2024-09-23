@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ImSpinner9 } from "react-icons/im";
 
-
 const CheckoutForm = ({ closeModal, bookingInfo }) => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
@@ -38,13 +37,26 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
       const { data } = await axiosSecure.post("/booking", bookedDetails);
       return data;
     },
+    onSuccess: async () => {
+      await updateRoom({ booked: true });
+    },
+  });
+  //  updationg room's status  = >
+  const { mutateAsync: updateRoom } = useMutation({
+    mutationKey: ["update-room"],
+    mutationFn: async (status) => {
+      const { data } = await axiosSecure.patch(
+        `/room-status/update/${bookingInfo._id}`,
+        status
+      );
+      return data;
+    },
     onSuccess: async (data) => {
-      console.log(data, "booking data posted");
-      toast.success("Successfully booked");
-      setProccessing(false)
-
-      navigate("/dashboard/my-bookings");
-
+      setProccessing(false);
+      closeModal();
+      if (data.modifiedCount > 0) {
+        navigate("/dashboard/my-bookings");
+      }
     },
   });
 
@@ -53,23 +65,21 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
       getpaymentIntent(bookingInfo.price);
     }
   }, [bookingInfo.price, getpaymentIntent]);
-
+  // payments handling =>
   const handleSubmit = async (form) => {
     setProccessing(true);
-
     if (!stripe || !elements) {
       return;
     }
-
     const card = elements.getElement(CardElement);
     if (card == null) {
       return;
     }
+    // checking card validation =>
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
       card,
     });
-
     if (error) {
       console.log("[error]", error);
       setCardErr(error?.message);
@@ -105,9 +115,6 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
       };
       // posting bookingsData to the server
       await postBooking(bookingDetails);
-      // save payment info into the bookiings collections
-
-      //  change room status into the rooms collections  by patch methos
     }
   };
 
@@ -145,8 +152,7 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
             className="inline-flex justify-center items-center gap-3   rounded-md border border-transparent bg-green-100 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
           >
             {(proccessing && (
-             <ImSpinner9  className="animate-spin" size={"20"} />
-
+              <ImSpinner9 className="animate-spin" size={"20"} />
             )) || (
               <span>
                 Pay <span className="text-lg">{bookingInfo.price + "$"}</span>

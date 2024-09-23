@@ -32,6 +32,7 @@ const RoomUpdateModal = ({
   });
   const handleDates = (item) => {
     setState(item.selection);
+
   };
 
   if (inProgress) {
@@ -119,6 +120,8 @@ const RoomUpdateModal = ({
                       form: e.target,
                       state,
                       id: room._id,
+
+                      
                     };
                     handleUpdate(formData);
                   }}

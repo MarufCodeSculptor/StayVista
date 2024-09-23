@@ -26,6 +26,7 @@ const RoomReservation = ({ room }) => {
     guest: {
       name: user?.displayName,
       email: user?.email,
+      image: user?.photoURL,
     },
     price: totalPrice,
   };
@@ -54,9 +55,9 @@ const RoomReservation = ({ room }) => {
       </div>
       <hr />
       <div className="p-4">
-        {(room?.booked && <p className="text-center text-blue-600"> Room Reserved </p>) || (
-          <Button onClick={() => setIsOpen(true)} label={"Reserve"} />
-        )}
+        {(room?.booked && (
+          <p className="text-center text-blue-600"> Room Reserved </p>
+        )) || <Button onClick={() => setIsOpen(true)} label={"Reserve"} />}
         {/*   a modal wil appy here :  */}
 
         {!loading && (

@@ -63,8 +63,8 @@ const Addrooms = () => {
           bathrooms,
           bedrooms,
           image: imageUrl,
-          to: state.startDate,
-          from: state.endDate,
+          from: state.startDate,
+          to: state.endDate,
           host: {
             name: user?.displayName,
             email: user?.email,

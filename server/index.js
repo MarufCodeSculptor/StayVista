@@ -232,8 +232,8 @@ async function run() {
       const result = await roomsCollections.findOne(query);
       res.send(result);
     });
-    // room updates:
 
+    // room updates:
     app.put("/room/:id", logger, verifyToken, verifyHost, async (req, res) => {
       const id = req.params.id;
       const roomData = req.body;
@@ -246,6 +246,30 @@ async function run() {
       );
       res.send(result);
     });
+    // room status update
+    app.patch(
+      "/room-status/update/:id",
+      logger,
+      verifyToken,
+      async (req, res) => {
+        const id = req.params.id;
+        const data = req.body;
+        const query = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            ...data,
+          },
+        };
+        const options = { upsert: true };
+        const result = await roomsCollections.updateOne(
+          query,
+          updateDoc,
+          options
+        );
+
+        res.send(result);
+      }
+    );
     // removing rooms by user
     app.delete("/room/:id", logger, verifyToken, async (req, res) => {
       const id = req.params.id;
@@ -272,30 +296,29 @@ async function run() {
 
       res.send({ clientSecret: client_secret });
     });
-    //    adding bookings info
+    //posting  bookings info
     app.post("/booking", logger, verifyToken, async (req, res) => {
       const data = req.body;
       const result = await bookingsCollections.insertOne(data);
-      const roomId = data.roomId;
-      const updateDoc = {
-        $set: {
-          booked: true,
-        },
-      };
-      const query = {_id: new ObjectId(roomId)}
-      const options= {
-        upsert: true,
-      }
-      const roomUpdate = await roomsCollections.updateOne(query,updateDoc,options);
-      
-      res.send({
-        insertRes:result,
-        updateRes:roomUpdate,
-      });
+      res.send(result);
     });
-    // reading bookings deteails = >
+    // reading bookings  = >
     app.get("/bookings", async (unUsed, res) => {
       res.send(await bookingsCollections.find({}).toArray());
+    });
+    // rading user's bookings
+    app.get("/my-bookings/:email", logger, verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const query = { "guest.email": email };
+      const result = await bookingsCollections.find(query).toArray();
+      res.send(result);
+    });
+    // removing bookings
+    app.delete("/booking/:id",logger, verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingsCollections.deleteOne(query);
+      res.send(result);
     });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

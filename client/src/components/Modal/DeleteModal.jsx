@@ -9,12 +9,15 @@ import { Fragment } from "react";
 import PropTypes from "prop-types";
 import LoadingSpinner from "../Shared/LoadingSpinner";
 const DeleteModal = ({ handleClose, isOpen, handleDelete, id, inProgress }) => {
-  if (inProgress) {
+
+
+  
+  if (inProgress) { 
     return (
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={handleClose}  >
           <TransitionChild
-            as={Fragment}
+            as={Fragment} 
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -54,6 +57,9 @@ const DeleteModal = ({ handleClose, isOpen, handleDelete, id, inProgress }) => {
       </Transition>
     );
   }
+
+
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={handleClose}>
