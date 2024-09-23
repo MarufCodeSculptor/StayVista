@@ -8,9 +8,12 @@ import {
 } from "@headlessui/react";
 import { format } from "date-fns";
 import { Fragment } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import CheckoutForm from "../../Form/CheckOutForm";
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-const BookingModal = ({ closeModal, isOpen, bookingInfo, handleReserve }) => {
-  console.log(bookingInfo, "the booking info");
+const BookingModal = ({ closeModal, isOpen, bookingInfo }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -37,7 +40,7 @@ const BookingModal = ({ closeModal, isOpen, bookingInfo, handleReserve }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all font-roboto">
                 <DialogTitle
                   as="h3"
                   className="text-lg font-medium text-center leading-6 text-gray-900"
@@ -73,34 +76,14 @@ const BookingModal = ({ closeModal, isOpen, bookingInfo, handleReserve }) => {
                 </div>
                 <hr className="mt-8 " />
                 {/* checkout form */}
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    // make reservation here
-                    console.log("submit booking is working");
-                    closeModal();
-
-                    handleReserve();
-                  }}
-                >
-                  <div className="flex mt-2 justify-around">
-                    <button
-                      
-                      type="submit"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-green-100 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-                    >
-                      Continue
-                    </button>
-                    <button
-                      onClick={closeModal}
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
+                <div className="p-10 mt-3">
+                  <Elements stripe={stripePromise}>
+                    <CheckoutForm
+                      closeModal={closeModal}
+                      bookingInfo={bookingInfo}
+                    />
+                  </Elements>
+                </div>
               </DialogPanel>
             </TransitionChild>
           </div>

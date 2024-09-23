@@ -2,7 +2,7 @@ import Container from "../../components/Shared/Container";
 import { Helmet } from "react-helmet-async";
 import RoomReservation from "../../components/RoomDetails/RoomReservation";
 import Heading from "../../components/Shared/Heading";
-import { useLoaderData} from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 const RoomDetails = () => {
   const room = useLoaderData();
@@ -13,8 +13,9 @@ const RoomDetails = () => {
         <title>{room?.title}</title>
       </Helmet>
       {room && (
-        <div className="max-w-screen-lg mx-auto">
+        <div className="max-w-screen-lg mx-auto ">
           {/* Header */}
+          <h2 className="p-10 text-3xl text-center font-bold">Room Details</h2>
           <div className="flex flex-col gap-6">
             <div>
               <Heading title={room.title} subtitle={room.location} />
@@ -78,8 +79,6 @@ const RoomDetails = () => {
             </div>
 
             <div className="md:col-span-3 order-first md:order-last mb-10">
-             
-              {/* RoomReservation */}
               <RoomReservation room={room} />
             </div>
           </div>

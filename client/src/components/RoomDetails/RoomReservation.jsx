@@ -14,7 +14,7 @@ const RoomReservation = ({ room }) => {
   };
   const [state, setState] = useState(theDate);
   const { user, loading } = useAuth();
-  console.log(user, "the user ");
+
 
   const totalDays = parseInt(
     differenceInCalendarDays(new Date(room.to), new Date(room.from)) + 1
@@ -29,14 +29,12 @@ const RoomReservation = ({ room }) => {
       email: user?.email,
     },
     price: totalPrice,
+
+
   };
 
   const closeModal = () => {
     setIsOpen(false);
-  };
-
-  const handleReserve = (booking) => {
-    console.log("handle seserver is working ");
   };
 
   return (
@@ -67,7 +65,6 @@ const RoomReservation = ({ room }) => {
             closeModal={closeModal}
             isOpen={isOpen}
             bookingInfo={bookingInfo}
-            handleReserve={handleReserve}
           />
         )}
       </div>

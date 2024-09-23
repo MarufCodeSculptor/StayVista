@@ -5,7 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
-
+const stripe = require("stripe")(process.env.VITE_STRIPE_SECRET_KEY);
 const port = process.env.PORT || 8000;
 
 // middleware
@@ -62,6 +62,7 @@ async function run() {
   try {
     const roomsCollections = client.db("stayVista").collection("rooms");
     const usersCollections = client.db("stayVista").collection("users");
+    const bookingsCollections = client.db("stayVista").collection("bookings");
 
     const verifyAdmin = async (req, res, next) => {
       const user = req.user;
@@ -189,6 +190,7 @@ async function run() {
       const result = await usersCollections.findOne(query);
       res.send(result);
     });
+    // ROOM CRUD OPERATION =>
     // rooom create
     app.post("/room", logger, verifyToken, verifyHost, async (req, res) => {
       const roomData = req.body;
@@ -206,7 +208,7 @@ async function run() {
 
       res.send(result);
     });
-    //room read for host 
+    //room read for host
     app.get(
       "/my-listings/:email",
       logger,
@@ -229,18 +231,20 @@ async function run() {
       const result = await roomsCollections.findOne(query);
       res.send(result);
     });
-// room updates:
+    // room updates:
 
-
-
-app.put('/room/:id',logger,verifyToken,verifyHost,async(req,res)=>{
-  const id = req.params.id;
-  const roomData = req.body;
-  const query = { _id: new ObjectId(id) };
-  const options = { upsert: true };
-  const result = await roomsCollections.updateOne(query, { $set: roomData }, options);
-  res.send(result);
-})
+    app.put("/room/:id", logger, verifyToken, verifyHost, async (req, res) => {
+      const id = req.params.id;
+      const roomData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const result = await roomsCollections.updateOne(
+        query,
+        { $set: roomData },
+        options
+      );
+      res.send(result);
+    });
     // removing rooms by user
     app.delete("/room/:id", logger, verifyToken, async (req, res) => {
       const id = req.params.id;
@@ -248,7 +252,36 @@ app.put('/room/:id',logger,verifyToken,verifyHost,async(req,res)=>{
       const result = await roomsCollections.deleteOne(query);
       res.send(result);
     });
+    // PAYMENS INTENT CREATION =>
+    app.post("/payment-intent", logger, verifyToken, async (req, res) => {
+      const price = req.body.price;
+      const priceInt = parseFloat(price) * 100;
+      if (!price || priceInt < 1) {
+        return res.status(400).send({ message: "Invalid price" });
+      }
+      // generate priceIntents =>
+      const { client_secret } = await stripe.paymentIntents.create({
+        amount: priceInt,
+        currency: "usd",
 
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.send({ clientSecret: client_secret });
+    });
+    //    adding bookings info
+    app.post("/booking", logger, verifyToken, async (req, res) => {
+      const data = req.body;
+      const result = await bookingsCollections.insertOne(data);
+      console.log(data);
+      res.send(result);
+    });
+    // reading bookings deteails = >
+    app.get("/bookings", async (req, res) => {
+      res.send(await bookingsCollections.find({}).toArray());
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

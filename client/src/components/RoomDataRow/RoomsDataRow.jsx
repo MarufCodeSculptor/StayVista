@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import DeleteModal from "../Modal/DeleteModal";
 
 import RoomUpdateModal from "../Modal/RoomUpdateModal/RoomUpdateModal";
-import LoadingSpinner from "../Shared/LoadingSpinner";
+
 
 const RoomDataRow = ({
   room,

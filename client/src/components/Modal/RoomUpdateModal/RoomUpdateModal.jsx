@@ -11,7 +11,13 @@ import { DateRange } from "react-date-range";
 import { categories } from "../../Categories/CategoriesData";
 import LoadingSpinner from "../../Shared/LoadingSpinner";
 
-const RoomUpdateModal = ({ handleUpdate, setClose, open, room,inProgress }) => {
+const RoomUpdateModal = ({
+  handleUpdate,
+  setClose,
+  open,
+  room,
+  inProgress,
+}) => {
   // handling image  and dates stte and fucntions =>
   const [imagePreview, setImagePreview] = useState(room.image);
   const [imageTitle, setImageTitle] = useState("_Select Image");
@@ -28,9 +34,48 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room,inProgress }) => {
     setState(item.selection);
   };
 
+  if (inProgress) {
+    return (
+      <Transition appear show={open} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={setClose}>
+          <TransitionChild
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </TransitionChild>
 
-
-  if(inProgress) return <LoadingSpinner/>
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <DialogPanel className="w-full  transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <DialogTitle
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    <LoadingSpinner />
+                  </DialogTitle>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    );
+  }
 
   return (
     <Transition appear show={open} as={Fragment}>
@@ -73,7 +118,7 @@ const RoomUpdateModal = ({ handleUpdate, setClose, open, room,inProgress }) => {
                     const formData = {
                       form: e.target,
                       state,
-                      id:room._id
+                      id: room._id,
                     };
                     handleUpdate(formData);
                   }}
@@ -311,7 +356,7 @@ RoomUpdateModal.propTypes = {
   handleUpdate: PropTypes.func.isRequired,
   formsValue: PropTypes.object,
   room: PropTypes.object,
-  inProgress:PropTypes.bool,
+  inProgress: PropTypes.bool,
 };
 
 export default RoomUpdateModal;

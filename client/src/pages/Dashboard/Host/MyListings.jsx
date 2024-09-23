@@ -12,7 +12,7 @@ import { useState } from "react";
 const MyListings = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
-  const [inProgress,setInProgress] =useState(false)
+  const [inProgress, setInProgress] = useState(false);
 
   //  getting users adding data
   const {
@@ -27,6 +27,7 @@ const MyListings = () => {
       return data;
     },
   });
+
   //  handle  delete  code :
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => {
@@ -37,8 +38,6 @@ const MyListings = () => {
     isOpen,
     handle: { handleClose, setIsOpen },
   };
-
-
 
   const { mutateAsync } = useMutation({
     mutationKey: ["remove-room"],
@@ -51,17 +50,21 @@ const MyListings = () => {
       if (data.deletedCount > 0) {
         toast.success("Deleted successfully");
         // make modal delete modal close :
-        handleClose()
+        handleClose();
       }
     },
   });
 
   const handleDelete = async (roomId) => {
+    setInProgress(true);
+
     try {
       await mutateAsync(roomId);
       refetch();
     } catch (err) {
       console.log(err, "from deleting request for rooms");
+    } finally {
+      setInProgress(false);
     }
   };
   // update related codes :
@@ -91,8 +94,8 @@ const MyListings = () => {
   });
 
   const handleUpdate = async (formData) => {
-    console.log("argumenst resutls", formData);
     const { form, state, id } = formData;
+    setInProgress(true);
 
     const title = form.title.value;
     const description = form.description.value;
@@ -129,12 +132,14 @@ const MyListings = () => {
       console.log(err);
     } finally {
       setClose();
+      setInProgress(false);
     }
   };
 
   // update related code end here
 
   if (isLoading) return <LoadingSpinner />;
+  const empty = mylistings.length < 1;
   if (error)
     return (
       <div className="text-3xl text-red-400">
@@ -148,48 +153,56 @@ const MyListings = () => {
         <title>My Listings</title>
       </Helmet>
 
-      <div className="container mx-auto px-4 sm:px-8">
-        <div className="py-8">
-          <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-            <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-              <table className="min-w-full leading-normal">
-                <thead>
-                  <tr>
-                    <TableHead>#</TableHead>
-                    <TableHead>Tittle</TableHead>
-                    <TableHead>location</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>From</TableHead>
-                    <TableHead>To</TableHead>
-                    <TableHead>Delete</TableHead>
-                    <TableHead>Update</TableHead>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Room row data */}
+      {(empty && (
+        <div>
+          <h2 className="text-3xl text-center font-bold capitalize p-10">
+            No data found
+          </h2>
+        </div>
+      )) || (
+        <div className="container mx-auto px-4 sm:px-8">
+          <div className="py-8">
+            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+              <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                <table className="min-w-full leading-normal">
+                  <thead>
+                    <tr>
+                      <TableHead>#</TableHead>
+                      <TableHead>Tittle</TableHead>
+                      <TableHead>location</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>From</TableHead>
+                      <TableHead>To</TableHead>
+                      <TableHead>Delete</TableHead>
+                      <TableHead>Update</TableHead>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Room row data */}
 
-                  {mylistings.map((item, index) => {
-                    return (
-                      <RoomsDataRow
-                        key={item._id}
-                        room={item}
-                        index={index}
-                        refetch={refetch}
-                        handleDelete={handleDelete}
-                        user={user}
-                        handleUpdate={handleUpdate}
-                        updateModalConfig={updateModalConfig}
-                        deltedModalConfig={deltedModalConfig}
-                        inProgress={inProgress}
-                      ></RoomsDataRow>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    {mylistings.map((item, index) => {
+                      return (
+                        <RoomsDataRow
+                          key={item._id}
+                          room={item}
+                          index={index}
+                          refetch={refetch}
+                          handleDelete={handleDelete}
+                          user={user}
+                          handleUpdate={handleUpdate}
+                          updateModalConfig={updateModalConfig}
+                          deltedModalConfig={deltedModalConfig}
+                          inProgress={inProgress}
+                        ></RoomsDataRow>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

@@ -18,23 +18,23 @@ const UserDataRow = ({ user, refetch, index }) => {
   const closeModal = () => {
     setIsOpen(false);
   };
-  const axiosSecure = useAxiosSecure();
-  const { mutateAsync } = useMutation({
-    anabled: !laoding,
-    mutationKey: ["update-role", logedUser],
-    mutationFn: async (userData) => {
-      const { data } = await axiosSecure.put(
-        `/user-role/${logedUser?.email}`,
-        userData
-      );
-      return data;
-    },
+    const axiosSecure = useAxiosSecure();
+    const { mutateAsync } = useMutation({
+      anabled: !laoding,
+      mutationKey: ["update-role", logedUser],
+      mutationFn: async (userData) => {
+        const { data } = await axiosSecure.put(
+          `/user-role/${logedUser?.email}`,
+          userData
+        );
+        return data;
+      },
 
-    onSuccess: async (data) => {
-      console.log(data);
-      toast.success("successfully updated users data");
-    },
-  });
+      onSuccess: async (data) => {
+        console.log(data);
+        toast.success("successfully updated users data");
+      },
+    });
 
   const modalHandler = async (selected) => {
     const updatedUserData = {
