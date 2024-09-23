@@ -7,6 +7,8 @@ import { useMutation } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { ImSpinner9 } from "react-icons/im";
+
 
 const CheckoutForm = ({ closeModal, bookingInfo }) => {
   const { user } = useAuth();
@@ -39,7 +41,10 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
     onSuccess: async (data) => {
       console.log(data, "booking data posted");
       toast.success("Successfully booked");
-      navigate('/dashboard/my-bookings')
+      setProccessing(false)
+
+      navigate("/dashboard/my-bookings");
+
     },
   });
 
@@ -139,7 +144,14 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
             type="submit"
             className="inline-flex justify-center items-center gap-3   rounded-md border border-transparent bg-green-100 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
           >
-            Pay <span className="text-lg">{bookingInfo.price + "$"}</span>
+            {(proccessing && (
+             <ImSpinner9  className="animate-spin" size={"20"} />
+
+            )) || (
+              <span>
+                Pay <span className="text-lg">{bookingInfo.price + "$"}</span>
+              </span>
+            )}
           </button>
           <button
             onClick={closeModal}

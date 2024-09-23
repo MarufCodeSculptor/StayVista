@@ -14,6 +14,7 @@ import CheckoutForm from "../../Form/CheckOutForm";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const BookingModal = ({ closeModal, isOpen, bookingInfo }) => {
+ 
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>

@@ -21,15 +21,15 @@ app.use(cookieParser());
 
 // Verify Token Middleware
 const verifyToken = async (req, res, next) => {
-  console.log("come to verify token");
   const token = req.cookies?.token;
+  console.log("come to verify token", token);
   if (!token) {
     return res.status(401).send({ message: "unauthorized access" });
   }
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
-      return res.status(401).send({ message: "unauthorized access" });
+      return res.status(403).send({ message: "forbidden access" });
     }
     req.user = decoded;
     next();
@@ -60,9 +60,10 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const roomsCollections = client.db("stayVista").collection("rooms");
-    const usersCollections = client.db("stayVista").collection("users");
-    const bookingsCollections = client.db("stayVista").collection("bookings");
+    const db = client.db("stayVista");
+    const roomsCollections = db.collection("rooms");
+    const usersCollections = db.collection("users");
+    const bookingsCollections = db.collection("bookings");
 
     const verifyAdmin = async (req, res, next) => {
       const user = req.user;
@@ -275,11 +276,25 @@ async function run() {
     app.post("/booking", logger, verifyToken, async (req, res) => {
       const data = req.body;
       const result = await bookingsCollections.insertOne(data);
-      console.log(data);
-      res.send(result);
+      const roomId = data.roomId;
+      const updateDoc = {
+        $set: {
+          booked: true,
+        },
+      };
+      const query = {_id: new ObjectId(roomId)}
+      const options= {
+        upsert: true,
+      }
+      const roomUpdate = await roomsCollections.updateOne(query,updateDoc,options);
+      
+      res.send({
+        insertRes:result,
+        updateRes:roomUpdate,
+      });
     });
     // reading bookings deteails = >
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", async (unUsed, res) => {
       res.send(await bookingsCollections.find({}).toArray());
     });
     // Send a ping to confirm a successful connection
